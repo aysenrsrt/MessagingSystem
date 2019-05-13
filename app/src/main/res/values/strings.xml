@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">MessagingSystem</string>
+    <string name="header">Phone Schedule</string>
+    <string name="add_notes">Add New Note</string>
+    <string name="title_activity_add_note">AddNoteActivity</string>
+</resources>

@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "706919593181",
+    "firebase_url": "https://messagingsystem-7291a.firebaseio.com",
+    "project_id": "messagingsystem-7291a",
+    "storage_bucket": "messagingsystem-7291a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:706919593181:android:d4fee8216cefb5f6",
+        "android_client_info": {
+          "package_name": "com.example.aysenur.messagingsystem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "706919593181-knn4bc99kiasbgcgr9hchfmb5u6vm3pg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvfx20-bN2kfHdsq2sn324r7ajRFzu6Ic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "706919593181-knn4bc99kiasbgcgr9hchfmb5u6vm3pg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
