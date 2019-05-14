@@ -1,20 +1,13 @@
 package com.example.aysenur.messagingsystem;
 
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
-import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -23,27 +16,21 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.aysenur.messagingsystem.Model.Schedule;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com.example.aysenur.messagingsystem.reminder.AlarmSchedule;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 public class AddNote extends AppCompatActivity {
 
     EditText edtAddNote;
     TextView txtAddDates, txtAddTime;
-    Button btnAddNote;
-    ImageView imgCalendar, imgTime;
+    ImageView btnAddNote;
 
     Schedule schedule;
 
@@ -56,10 +43,19 @@ public class AddNote extends AppCompatActivity {
         txtAddDates = findViewById(R.id.txtAddDates);
         txtAddTime = findViewById(R.id.txtAddTime);
         btnAddNote = findViewById(R.id.btnAddNote);
-        imgCalendar = findViewById(R.id.imgCalendar);
-        imgTime = findViewById(R.id.imgTime);
 
-        imgCalendar.setOnClickListener(new View.OnClickListener() {
+        final Intent i = getIntent();
+        final Schedule s = (Schedule) i.getSerializableExtra("Schedule");
+
+        if(s != null) {
+            try {
+                updateSchedule(s);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+
+        txtAddDates.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -80,7 +76,7 @@ public class AddNote extends AppCompatActivity {
             }
         });
 
-        imgTime.setOnClickListener(new View.OnClickListener() {
+        txtAddTime.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Calendar time = Calendar.getInstance();
@@ -97,31 +93,33 @@ public class AddNote extends AppCompatActivity {
             }
         });
 
-        btnAddNote.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        if(s == null){
+            btnAddNote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
 
-                if(edtAddNote.getText().length() > 0){
-                    try {
-                        addSchedule();
-                    } catch (ParseException e) {
-                        e.printStackTrace();
+                    if(edtAddNote.getText().length() > 0){
+                        try {
+                            addSchedule();
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        Intent intent = new Intent(AddNote.this, MainActivity.class);
+                        startActivity(intent);
                     }
-                    Intent intent = new Intent(AddNote.this, MainActivity.class);
-                    startActivity(intent);
-                }
-                else {
-                    new AlertDialog.Builder(AddNote.this)
-                            .setMessage("Please, Do not leave fields empty.")
+                    else {
+                        new AlertDialog.Builder(AddNote.this)
+                                .setMessage("Please, Do not leave fields empty.")
 
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                }
-                            })
-                            .show();
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                    }
+                                })
+                                .show();
+                    }
                 }
-            }
-        });
+            });
+        }
 
     }
 
@@ -139,47 +137,66 @@ public class AddNote extends AppCompatActivity {
                 txtAddTime.getText().toString(), edtAddNote.getText().toString());
 
         mFirebaseDatabase.child(id).setValue(schedule);
-        int mins = diffDate(txtAddDates.getText().toString(), txtAddTime.getText().toString());
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         Intent notificationIntent = new Intent(this, AlarmReceiver.class);
 
+        AlarmSchedule a = new AlarmSchedule();
+
+        int mins = a.diffDate(txtAddDates.getText().toString(), txtAddTime.getText().toString());
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, mins);
-
-        setAlarm(this, notificationIntent, schedule, cal);
+        a.setAlarm(AddNote.this, notificationIntent, cal);
     }
 
-    public static void setAlarm(Context context, Intent intent, Schedule schedule, Calendar calendar) {
-        intent.putExtra("SCHEDULE_ID", schedule);
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    private void updateSchedule(final Schedule updateSchedule) throws ParseException {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-        }
+        edtAddNote.setText(updateSchedule.getNote());
+        txtAddDates.setText(updateSchedule.getDate());
+        txtAddTime.setText(updateSchedule.getTime());
+
+        btnAddNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(edtAddNote.getText().length() > 0 ){
+                    DatabaseReference dR = FirebaseDatabase.getInstance().getReference("schedule").child(updateSchedule.getId());
+                    Schedule s = new Schedule(updateSchedule.getId(), txtAddDates.getText().toString(),
+                            txtAddTime.getText().toString(), edtAddNote.getText().toString());
+                    dR.setValue(s);
+                    Intent intent = new Intent(AddNote.this, MainActivity.class);
+                    startActivity(intent);
+
+                    Intent notificationIntent = new Intent(AddNote.this, AlarmReceiver.class);
+
+                    AlarmSchedule a = new AlarmSchedule();
+
+                    int mins = 0;
+                    try {
+                        mins = a.diffDate(txtAddDates.getText().toString(), txtAddTime.getText().toString());
+                        if(mins < 0) {
+                            Toast.makeText(AddNote.this, "Please, Choose a Future Date .", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                    if(mins >= 0){
+                        Toast.makeText(AddNote.this, "Updated.", Toast.LENGTH_SHORT).show();
+                        Calendar cal = Calendar.getInstance();
+                        cal.add(Calendar.MINUTE, mins);
+                        a.setAlarm(AddNote.this, notificationIntent, cal);
+                    }
+                }
+            }
+        });
+
     }
 
-    private int diffDate (String addedDate, String addedTime ) throws ParseException {
+    private void delete(String ID) {
 
-        String total = addedDate + " " + addedTime;
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-        Date time = formatter.parse(total);
-
-        Date currentTime = Calendar.getInstance().getTime();
-
-        long diff = time.getTime() - currentTime.getTime();
-        int Hours = (int) (diff/(1000 * 60 * 60) * 60);
-        int Mins = (int) (diff/(1000*60)) % 60;
-        int totalTime = Hours + Mins;
-        Log.i("diff: ", ""+ totalTime + ", " + time + ", c: " + currentTime);
-
-        return totalTime;
+        DatabaseReference dR = FirebaseDatabase.getInstance().getReference("schedule").child(ID);
+        dR.removeValue();
+        Toast.makeText(AddNote.this, "Deleted.", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(AddNote.this, MainActivity.class);
+        startActivity(intent);
     }
+
 }
