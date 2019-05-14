@@ -9,11 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -139,6 +137,9 @@ public class AddNote extends AppCompatActivity {
         mFirebaseDatabase.child(id).setValue(schedule);
 
         Intent notificationIntent = new Intent(this, AlarmReceiver.class);
+        Bundle b = new Bundle();
+        b.putString("Schedule_Note", schedule.getNote());
+        notificationIntent.putExtras(b);
 
         AlarmSchedule a = new AlarmSchedule();
 
@@ -166,6 +167,9 @@ public class AddNote extends AppCompatActivity {
                     startActivity(intent);
 
                     Intent notificationIntent = new Intent(AddNote.this, AlarmReceiver.class);
+                    Bundle b = new Bundle();
+                    b.putString("Schedule_Note", updateSchedule.getNote());
+                    notificationIntent.putExtras(b);
 
                     AlarmSchedule a = new AlarmSchedule();
 
@@ -188,15 +192,6 @@ public class AddNote extends AppCompatActivity {
             }
         });
 
-    }
-
-    private void delete(String ID) {
-
-        DatabaseReference dR = FirebaseDatabase.getInstance().getReference("schedule").child(ID);
-        dR.removeValue();
-        Toast.makeText(AddNote.this, "Deleted.", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(AddNote.this, MainActivity.class);
-        startActivity(intent);
     }
 
 }

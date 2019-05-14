@@ -21,6 +21,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Intent notificationIntent = new Intent(context, MainActivity.class);
+        String note = (String) intent.getExtras().getString("Schedule_Note");
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
         stackBuilder.addParentStack(MainActivity.class);
@@ -31,7 +32,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Notification.Builder builder = new Notification.Builder(context);
 
         Notification notification = builder.setContentTitle("Reminding")
-                .setContentText("Deneme")
+                .setContentText(note)
                 .setTicker("New Message Alert!")
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentIntent(pendingIntent).build();

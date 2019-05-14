@@ -18,7 +18,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:layout_marginBottom="@dimen/_10sdp">
 
             <LinearLayout
                 android:id="@+id/linDate"
@@ -109,6 +110,7 @@
                 android:layout_width="@dimen/_30sdp"
                 android:layout_height="@dimen/_30sdp"
                 android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginRight="@dimen/_10sdp"
                 android:src="@drawable/icon_delete"/>
         </LinearLayout>
 
@@ -116,7 +118,6 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="@dimen/_2sdp"
-        android:layout_marginTop="@dimen/_5sdp"
-        android:background="@color/gray" />
+        android:layout_height="@dimen/_1sdp"
+        android:background="@color/white" />
 </LinearLayout>
