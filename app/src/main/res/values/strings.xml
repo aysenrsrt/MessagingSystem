@@ -3,4 +3,6 @@
     <string name="header">Phone Schedule</string>
     <string name="add_notes">Add New Note</string>
     <string name="title_activity_add_note">AddNoteActivity</string>
+    <string name="minimum_password">Password too short, enter minimum 6 characters!</string>
+    <string name="auth_failed">Authentication failed, check your email and password or sign up</string>
 </resources>
